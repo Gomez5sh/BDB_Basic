@@ -1,18 +1,18 @@
 const { Router } = require("express");
-const router = Router();
+const api = Router();
 
 const {
   getPerson,
-  getPersonById,
+  getPersonId,
   createPerson,
-  updatePerson,
+  upPerson,
   deletePerson,
 } = require("../controllers/index.controller");
 
-router.get("/person", getPerson);
-router.get("/person/:id", getPersonById);
-router.post("/person", createPerson);
-router.put("/person/:id", updatePerson);
-router.delete("/person/:id", deletePerson);
+api.get("/all", getPerson);
+api.get("/all/:id", getPersonId);
+api.post("/all", createPerson);
+api.put("/all/:id", upPerson);
+api.delete("/all/:id", deletePerson);
 
-module.exports = router;
+module.exports = api;

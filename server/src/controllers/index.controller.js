@@ -2,59 +2,66 @@ const { Pool } = require("pg");
 
 const pool = new Pool({
   user: "postgres",
+  password: "mypassword",
   host: "127.0.0.1",
-  password: "mysecretpassword",
   database: "api",
   port: "5433",
-  max: "40",
 });
 
-const gePerson = async (req, res) => {
-  const response = await pool.query("SELECT * FROM person ORDER BY id ASC");
-  res.status(200).json(response.rows);
+const getPerson = (req, results) => {
+  pool.query("select * from person", (err, res) => {
+    if (err) {
+      console.log(err);
+    }
+    results.status(200).json(results.rows);
+  });
 };
 
-const getPersonById = async (req, res) => {
-  const id = parseInt(req.params.id);
-  const response = await pool.query("SELECT * FROM person WHERE id = $1", [id]);
-  res.json(response.rows);
-};
-
-const createPerson = async (req, res) => {
-  const { name, email } = req.body;
-  const response = await pool.query(
+const createPerson = async (req, results) => {
+  const { fullname, birth } = req.body;
+  const res = await pool.query(
     "INSERT INTO person (fullname, birth) VALUES ($1, $2)",
     [fullname, birth]
   );
-  res.json({
-    message: "person Added successfully",
+  console.log(res);
+  results.json({
+    message: "Person inserted",
     body: {
       user: { fullname, birth },
     },
   });
 };
 
-const updatePerson = async (req, res) => {
-  const id = parseInt(req.params.id);
-  const { name, email } = req.body;
-
-  const response = await pool.query(
-    "UPDATE person SET name = $1, email = $2 WHERE id = $3",
-    [fullname, birth, id]
-  );
-  res.json("person Updated Successfully");
+const getPersonId = async (req, results) => {
+  const res = await pool.query("SELECT * FROM person WHERE id = $1", [
+    req.params.id,
+  ]);
+  results.json(res.rows);
 };
 
-const deletePerson = async (req, res) => {
-  const id = parseInt(req.params.id);
-  await pool.query("DELETE FROM person where id = $1", [id]);
-  res.json(`User ${id} deleted Successfully`);
+const upPerson = async (req, results) => {
+  const id = req.params.id;
+  const { fullname, birth } = req.body;
+  const res = await pool.query(
+    "UPDATE person SET fullname = $1, birth = $2 WHERE id = $3",
+    [fullname, birth, id]
+  );
+  console.log(res);
+  results.json("Person updated");
+};
+
+const deletePerson = async (req, results) => {
+  const res = await pool.query("DELETE FROM person WHERE id = $1", [
+    req.params.id,
+  ]);
+  console.log(res);
+  results.json(`Person ${req.params.id} Deleted`);
 };
 
 module.exports = {
   getPerson,
-  getPersonById,
+  getPersonId,
   createPerson,
-  updatePerson,
+  upPerson,
   deletePerson,
 };
